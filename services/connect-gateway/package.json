@@ -5,9 +5,9 @@
   "description": "Connect Gateway (BFF): issues keys, signs handshakes, proxies to Pacto API, emits webhooks.",
   "type": "module",
   "scripts": {
-    "dev": "tsx watch src/index.ts",
+    "dev": "tsx watch --env-file=.env src/index.ts",
     "build": "prisma generate && tsup",
-    "start": "node dist/index.js",
+    "start": "node --env-file=.env dist/index.js",
     "lint": "biome check src",
     "type-check": "tsc --noEmit",
     "test": "vitest run",
