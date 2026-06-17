@@ -1,0 +1,35 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum KeyMode {
+  live
+  test
+}
+
+enum KeyStatus {
+  active
+  revoked
+}
+
+model ApiKey {
+  id             String    @id @default(cuid())
+  publishableKey String    @unique
+  secretKeyHash  String
+  secretLast4    String
+  mode           KeyMode   @default(test)
+  allowedOrigins String[]
+  status         KeyStatus @default(active)
+  label          String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([publishableKey])
+  @@index([status])
+}
