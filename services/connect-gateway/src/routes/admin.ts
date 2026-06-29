@@ -2,10 +2,12 @@ import type { KeyMode } from '@prisma/client';
 import { Hono } from 'hono';
 import { createApiKey, listApiKeys, revokeApiKey, rotateApiKey } from '../keys.js';
 import { adminAuth } from '../middleware/admin.js';
+import { webhookRoutes } from './webhooks.js';
 
 const admin = new Hono();
 
 admin.use('*', adminAuth);
+admin.route('/webhooks', webhookRoutes);
 
 admin.get('/keys', async (c) => {
   const keys = await listApiKeys();
@@ -17,6 +19,7 @@ admin.post('/keys', async (c) => {
     mode?: KeyMode;
     allowedOrigins?: string[];
     label?: string;
+    quoteSpreadBps?: number;
   }>();
 
   if (!body.mode || (body.mode !== 'live' && body.mode !== 'test')) {
@@ -33,10 +36,21 @@ admin.post('/keys', async (c) => {
     }
   }
 
+  if (body.quoteSpreadBps !== undefined) {
+    if (
+      !Number.isInteger(body.quoteSpreadBps) ||
+      body.quoteSpreadBps < 0 ||
+      body.quoteSpreadBps > 10000
+    ) {
+      return c.json({ error: 'quoteSpreadBps must be an integer between 0 and 10000' }, 400);
+    }
+  }
+
   const key = await createApiKey({
     mode: body.mode,
     allowedOrigins: body.allowedOrigins,
     label: body.label,
+    quoteSpreadBps: body.quoteSpreadBps,
   });
 
   return c.json({ key }, 201);
