@@ -127,6 +127,20 @@ function buildPackageInstall(pkg: PackageDef): string {
   return `# ${pkg.name}\n\n\`\`\`bash\nnpm install ${pkg.name}\n\`\`\`\n\n`;
 }
 
+// Escape bare custom-element tags (names with hyphens like <pacto-checkout>)
+// that appear outside fenced code blocks, so MDX doesn't treat them as JSX.
+function escapeCustomElementsOutsideCodeBlocks(md: string): string {
+  const parts = md.split(/(```[\s\S]*?```)/g);
+  return parts
+    .map((part, i) => {
+      // Odd indices are code blocks — leave them untouched
+      if (i % 2 === 1) return part;
+      // Replace < with &lt; on custom-element tags so MDX doesn't parse them as JSX
+      return part.replace(/<([a-z][a-z0-9]*(?:-[a-z0-9]+)+)(\s|>|\/)/g, '&lt;$1$2');
+    })
+    .join('');
+}
+
 async function generate(): Promise<void> {
   ensureDir(OUT_DIR);
   ensureDir(TYPEDOC_TMP);
@@ -149,6 +163,10 @@ async function generate(): Promise<void> {
           // Link within same package page — make it a heading anchor
           return hash ? `[${text}](${hash})` : `[${text}](#${file.toLowerCase()})`;
         });
+
+      // Escape bare custom-element tags (e.g. <pacto-checkout>) outside code blocks
+      // so MDX doesn't try to parse them as JSX components.
+      mdxBody = escapeCustomElementsOutsideCodeBlocks(mdxBody);
 
       const outContent =
         GENERATED_BANNER +
