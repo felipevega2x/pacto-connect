@@ -61,6 +61,14 @@ export {
   STYLE_ELEMENT_ID,
   themeToCssVars,
 } from './theme.js';
+export {
+  en as enMessages,
+  es as esMessages,
+  formatMessage,
+  type PactoLocale,
+  type PactoMessages,
+  resolveMessages,
+} from './i18n.js';
 export { isTestMode, keyMode } from './keys.js';
 export type {
   CreateEscrowParams,
