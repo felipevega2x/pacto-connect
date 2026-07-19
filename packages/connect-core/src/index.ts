@@ -53,6 +53,14 @@ export {
   type EscrowMilestone,
   type EscrowSubscribeOptions,
 } from './escrow-events.js';
+export {
+  buildCheckoutStylesheet,
+  DEFAULT_THEME,
+  type DeepPartial,
+  type PactoTheme,
+  STYLE_ELEMENT_ID,
+  themeToCssVars,
+} from './theme.js';
 export { isTestMode, keyMode } from './keys.js';
 export type {
   CreateEscrowParams,
